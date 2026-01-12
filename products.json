@@ -1,20 +1,3 @@
 [
-  {
-    "id": 1768250261526,
-    "name": "لتفعغا",
-    "price": "10000",
-    "oldPrice": "20000",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMv_daCmkiRgCpwOaHI_ZxAUO4uy-6OabP-g&s",
-    "category": "عناية بالوجه",
-    "type": "offer"
-  },
-  {
-    "id": 1768179598626,
-    "name": "تجربة",
-    "price": "15000",
-    "oldPrice": "",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMv_daCmkiRgCpwOaHI_ZxAUO4uy-6OabP-g&s",
-    "category": "عناية بالوجه",
-    "type": "normal"
-  }
+  
 ]
