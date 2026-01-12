@@ -7,5 +7,14 @@
     "type": "normal",
     "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMv_daCmkiRgCpwOaHI_ZxAUO4uy-6OabP-g&s",
     "desc": "ةىوتاوةعن"
+  },
+  {
+    "name": "قفاقف",
+    "price": "45000",
+    "oldPrice": "80000",
+    "category": "عناية بالجسم",
+    "type": "offer",
+    "image": "https://i.ibb.co/sdLPgSDp/image.jpg",
+    "desc": "فغتفغتفتفعت"
   }
 ]
