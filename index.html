@@ -1,193 +1,244 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم Mediphera</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>مديفيرا - لوحة التحكم الذكية</title>
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+        :root {
+            --bg-dark: #121212; --card-bg: #1e1e1e;
+            --primary: #d81b60; --accent: #bf9b30;  
+            --text-main: #e0e0e0; --input-bg: #2d2d2d;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .dashboard { background: var(--card-bg); padding: 30px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 100%; max-width: 600px; border: 1px solid #333; margin-bottom: 20px; }
+        h2 { text-align: center; color: var(--accent); margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        label { font-weight: 600; display: block; margin-top: 15px; color: var(--accent); font-size: 0.85em; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #333; border-radius: 12px; box-sizing: border-box; background: var(--input-bg); color: white; font-size: 15px; }
+        .upload-section { background: #252525; border: 2px dashed var(--primary); padding: 20px; border-radius: 15px; text-align: center; }
+        #upload-status { font-size: 0.9em; color: var(--primary); margin-top: 10px; font-weight: bold; }
+        button { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--primary), #ad1457); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.4s; margin-top: 20px; }
+        button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(216, 27, 96, 0.4); }
+        .delete-btn { background: #c62828 !important; padding: 8px 15px; font-size: 12px; width: auto; margin: 5px; border-radius: 8px; border:none; color:white; cursor:pointer;}
+        .edit-btn { background: #2e7d32 !important; padding: 8px 15px; font-size: 12px; width: auto; margin: 5px; border-radius: 8px; border:none; color:white; cursor:pointer;}
+        #preview-img { max-height: 100px; margin: 10px auto; display: none; border-radius: 10px; }
+        
+        .product-list-item { display: flex; align-items: center; background: #252525; padding: 10px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #333; }
+        .product-list-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; margin-left: 15px; border: 1px solid #444; }
+        .product-info { flex-grow: 1; }
+        .product-info div { font-size: 15px; font-weight: bold; color: #fff; }
+        .product-info span { font-size: 13px; color: var(--accent); }
     </style>
 </head>
 <body>
-    <div class="min-h-screen">
-        <nav class="bg-slate-900 text-white p-4 shadow-lg">
-            <div class="container mx-auto flex justify-between items-center">
-                <h1 class="text-2xl font-black text-pink-500">Mediphera <span class="text-white text-sm font-normal text-gray-400">Admin</span></h1>
-                <button onclick="saveToGithub()" class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-xl font-bold transition-all flex items-center gap-2">
-                    <span>حفظ التغييرات</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                </button>
-            </div>
-        </nav>
 
-        <div class="container mx-auto p-4 md:p-8 grid md:grid-cols-3 gap-8">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-fit sticky top-24">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                    <span class="bg-pink-100 text-pink-600 p-2 rounded-lg text-sm">✚</span> إضافة منتج جديد
-                </h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">اسم المنتج</label>
-                        <input type="text" id="p-name" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-500 outline-none">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">السعر الحالي</label>
-                            <input type="number" id="p-price" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">السعر القديم (اختياري)</label>
-                            <input type="number" id="p-old-price" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-500 outline-none">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">رابط الصورة</label>
-                        <input type="text" id="p-image" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-500 outline-none" placeholder="https://...">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">القسم</label>
-                        <select id="p-cat" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-500 outline-none">
-                            <option value="عناية بالوجه">عناية بالوجه</option>
-                            <option value="عناية بالجسم">عناية بالجسم</option>
-                            <option value="عروض خاصة">عروض خاصة</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">نوع المنتج</label>
-                        <select id="p-type" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-pink-500 outline-none">
-                            <option value="normal">منتج عادي</option>
-                            <option value="offer">منتج عرض (يظهر في السلايدر)</option>
-                        </select>
-                    </div>
-                    <button onclick="addProduct()" class="w-full bg-pink-600 text-white font-bold py-4 rounded-2xl hover:bg-pink-700 transition-all shadow-lg shadow-pink-200">
-                        إضافة لقائمة التعديل
-                    </button>
-                </div>
-            </div>
+<div class="dashboard">
+    <h2>💎 إضافة / تعديل منتج</h2>
+    
+    <div class="upload-section">
+        <label style="margin-top:0;">📸 صورة المنتج:</label>
+        <input type="file" id="file-input" accept="image/*" onchange="processAndUpload(this)">
+        <img id="preview-img" src="#">
+        <div id="upload-status">بانتظار اختيار ملف...</div>
+    </div>
 
-            <div class="md:col-span-2">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-black text-slate-800">المنتجات الحالية (<span id="count">0</span>)</h2>
-                    <div class="text-xs text-gray-500 bg-gray-200 px-3 py-1 rounded-full">تأكد من الحفظ بعد التعديل</div>
-                </div>
-                <div id="products-list" class="grid sm:grid-cols-2 gap-4 text-right">
-                    </div>
-            </div>
+    <input type="hidden" id="p-img">
+    <input type="hidden" id="edit-id"> 
+
+    <label>اسم المنتج:</label>
+    <input type="text" id="p-name" placeholder="مثلاً: كريم ميدي فيرا">
+
+    <label>نوع المنتج:</label>
+    <select id="p-type" onchange="toggleFields()">
+        <option value="normal">منتج عادي</option>
+        <option value="offer">عرض خاص 🔥</option>
+    </select>
+
+    <div style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label>السعر الحالي (أرقام فقط):</label>
+            <input type="number" id="p-price" placeholder="75000">
+        </div>
+        <div id="old-price-section" style="flex: 1; display:none;">
+            <label>السعر القديم:</label>
+            <input type="number" id="p-old-price" placeholder="90000">
         </div>
     </div>
 
-    <div id="config-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[5000]">
-        <div class="bg-white p-8 rounded-[40px] max-w-md w-full shadow-2xl">
-            <h3 class="text-2xl font-bold mb-4 text-center">إعداد الاتصال بـ GitHub</h3>
-            <p class="text-gray-500 text-sm mb-6 text-center">تحتاج لمرة واحدة فقط إدخال الـ Token واسم المستودع لكي تعمل اللوحة</p>
-            <input type="password" id="gh-token" placeholder="GitHub Personal Access Token" class="w-full p-4 mb-4 border border-gray-200 rounded-2xl">
-            <input type="text" id="gh-repo" placeholder="username/repo-name" class="w-full p-4 mb-6 border border-gray-200 rounded-2xl">
-            <button onclick="saveConfig()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold">ابدأ الإدارة الآن</button>
-        </div>
-    </div>
+    <label>التصنيف:</label>
+    <select id="p-cat">
+        <option value="عناية بالوجه">عناية بالوجه</option>
+        <option value="عناية بالجسم">عناية بالجسم</option>
+        <option value="عروض خاصة">عروض خاصة</option>
+    </select>
 
-    <script>
-        let products = [];
-        let config = JSON.parse(localStorage.getItem('gh_config')) || null;
+    <label>وصف المنتج:</label>
+    <textarea id="p-desc" rows="3" placeholder="اكتب تفاصيل المنتج هنا..."></textarea>
 
-        if(config) document.getElementById('config-modal').style.display = 'none';
+    <button id="main-btn" onclick="saveToGithub()">🚀 حفظ المنتج في المتجر</button>
+    <button id="cancel-btn" style="display:none; background:#555;" onclick="resetForm()">إلغاء التعديل</button>
+</div>
 
-        function saveConfig() {
-            const token = document.getElementById('gh-token').value;
-            const repo = document.getElementById('gh-repo').value;
-            if(!token || !repo) return alert('يرجى ملء البيانات');
-            config = { token, repo };
-            localStorage.setItem('gh_config', JSON.stringify(config));
-            location.reload();
-        }
+<div class="dashboard">
+    <h2>📦 المنتجات المنشورة</h2>
+    <div id="products-container">جاري تحميل المنتجات...</div>
+</div>
 
-        async function loadFromGithub() {
-            if(!config) return;
-            const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/products.json`, {
-                headers: { 'Authorization': `token ${config.token}` }
+<script>
+    // الإعدادات التي تم ربطها بحسابك
+    const GITHUB_TOKEN = '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'; 
+    const REPO_PATH = 'Majd2004/store-data';
+    const FILE_PATH = 'products.json';
+    const IMGBB_KEY = '14cbd2c96327ee8a0a9764fa6dd74291';
+
+    let allProducts = [];
+
+    async function loadProducts() {
+        try {
+            const res = await fetch(`https://api.github.com/repos/${REPO_PATH}/contents/${FILE_PATH}`, {
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
             });
             const data = await res.json();
-            const content = atob(data.content);
-            products = JSON.parse(decodeURIComponent(escape(content)));
-            renderProducts();
+            allProducts = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+            renderList();
+        } catch (e) { document.getElementById('products-container').innerHTML = "خطأ في تحميل البيانات."; }
+    }
+
+    function renderList() {
+        const container = document.getElementById('products-container');
+        container.innerHTML = allProducts.length ? '' : 'لا توجد منتجات حالياً.';
+        allProducts.forEach(p => {
+            container.innerHTML += `
+                <div class="product-list-item">
+                    <img src="${p.image}">
+                    <div class="product-info">
+                        <div>${p.name}</div>
+                        <span>${p.price} SYP | ${p.category}</span>
+                    </div>
+                    <button class="edit-btn" onclick="editProduct(${p.id})">✏️</button>
+                    <button class="delete-btn" onclick="deleteProduct(${p.id})">🗑️</button>
+                </div>`;
+        });
+    }
+
+    function toggleFields() {
+        const type = document.getElementById('p-type').value;
+        document.getElementById('old-price-section').style.display = (type === 'offer') ? 'block' : 'none';
+    }
+
+    async function processAndUpload(input) {
+        const file = input.files[0]; if (!file) return;
+        const status = document.getElementById('upload-status');
+        const preview = document.getElementById('preview-img');
+        status.innerHTML = "⌛ جاري الرفع...";
+        
+        const reader = new FileReader();
+        reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append("image", file);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
+        const data = await res.json();
+        if(data.success) {
+            document.getElementById('p-img').value = data.data.url;
+            status.innerHTML = "✅ تم الرفع بنجاح!";
+        }
+    }
+
+    async function saveToGithub() {
+        const id = document.getElementById('edit-id').value;
+        const name = document.getElementById('p-name').value;
+        const img = document.getElementById('p-img').value;
+        const price = document.getElementById('p-price').value;
+        const oldPrice = document.getElementById('p-old-price').value;
+        const cat = document.getElementById('p-cat').value;
+        const desc = document.getElementById('p-desc').value;
+        const type = document.getElementById('p-type').value;
+
+        if(!name || !price || !img) return alert("الرجاء إدخال الاسم والسعر والصورة!");
+
+        const newProduct = { id: id ? parseInt(id) : Date.now(), name, price, oldPrice, image: img, category: cat, type, desc };
+
+        if(id) {
+            const index = allProducts.findIndex(p => p.id == id);
+            allProducts[index] = newProduct;
+        } else {
+            allProducts.push(newProduct);
         }
 
-        function renderProducts() {
-            const list = document.getElementById('products-list');
-            document.getElementById('count').innerText = products.length;
-            list.innerHTML = '';
-            products.forEach((p, index) => {
-                list.innerHTML += `
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex gap-4">
-                        <img src="${p.image}" class="w-20 h-20 object-cover rounded-2xl">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-slate-800">${p.name}</h4>
-                            <p class="text-pink-600 font-bold text-sm">${p.price} SYP</p>
-                            <button onclick="removeProduct(${index})" class="text-red-500 text-xs mt-2 underline">حذف المنتج</button>
-                        </div>
-                    </div>`;
-            });
-        }
+        await updateGithubFile();
+    }
 
-        function addProduct() {
-            const newP = {
-                id: Date.now(),
-                name: document.getElementById('p-name').value,
-                price: document.getElementById('p-price').value,
-                oldPrice: document.getElementById('p-old-price').value,
-                image: document.getElementById('p-image').value,
-                category: document.getElementById('p-cat').value,
-                type: document.getElementById('p-type').value
-            };
-            products.unshift(newP);
-            renderProducts();
-            // Clear fields
-            document.getElementById('p-name').value = '';
-            document.getElementById('p-price').value = '';
-        }
+    async function deleteProduct(id) {
+        if(!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+        allProducts = allProducts.filter(p => p.id != id);
+        await updateGithubFile();
+    }
 
-        function removeProduct(i) {
-            if(confirm('هل أنت متأكد من حذف المنتج؟')) {
-                products.splice(i, 1);
-                renderProducts();
-            }
-        }
+    function editProduct(id) {
+        const p = allProducts.find(p => p.id == id);
+        document.getElementById('edit-id').value = p.id;
+        document.getElementById('p-name').value = p.name;
+        document.getElementById('p-img').value = p.image;
+        document.getElementById('p-price').value = p.price;
+        document.getElementById('p-old-price').value = p.oldPrice || '';
+        document.getElementById('p-cat').value = p.category;
+        document.getElementById('p-desc').value = p.desc || '';
+        document.getElementById('p-type').value = p.type;
+        document.getElementById('preview-img').src = p.image;
+        document.getElementById('preview-img').style.display = 'block';
+        document.getElementById('main-btn').innerText = "💾 حفظ التعديلات الآن";
+        document.getElementById('cancel-btn').style.display = 'block';
+        window.scrollTo({top: 0, behavior: 'smooth'});
+        toggleFields();
+    }
 
-        async function saveToGithub() {
-            if(!config) return;
-            const btn = event.target;
-            btn.innerText = 'جاري الحفظ...';
-            
-            // 1. Get current file SHA
-            const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/products.json`, {
-                headers: { 'Authorization': `token ${config.token}` }
-            });
-            const fileData = await res.json();
-            const sha = fileData.sha;
+    async function updateGithubFile() {
+        const btn = document.getElementById('main-btn');
+        const originalText = btn.innerText;
+        btn.innerText = "⌛ جاري المزامنة...";
+        btn.disabled = true;
 
-            // 2. Push Update
-            const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
-            const push = await fetch(`https://api.github.com/repos/${config.repo}/contents/products.json`, {
-                method: 'PUT',
-                headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
+        try {
+            const fileInfo = await fetch(`https://api.github.com/repos/${REPO_PATH}/contents/${FILE_PATH}`, {
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+            }).then(r => r.json());
+
+            const res = await fetch(`https://api.github.com/repos/${REPO_PATH}/contents/${FILE_PATH}`, {
+                method: "PUT",
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: "Update products via Admin Dashboard",
-                    content: updatedContent,
-                    sha: sha
+                    message: "Update products",
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(allProducts, null, 2)))),
+                    sha: fileInfo.sha
                 })
             });
 
-            if(push.ok) {
-                alert('✅ تم تحديث المتجر بنجاح!');
-                location.reload();
-            } else {
-                alert('❌ خطأ في الحفظ!');
-            }
-        }
+            if(res.ok) {
+                alert("✅ رائع! تم تحديث المتجر بنجاح.");
+                resetForm();
+                loadProducts();
+            } else { alert("حدث خطأ في الاتصال، تأكد من صلاحية التوكن."); }
+        } catch (e) { alert("خطأ: " + e); }
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
 
-        if(config) loadFromGithub();
-    </script>
+    function resetForm() {
+        document.getElementById('edit-id').value = '';
+        document.getElementById('p-name').value = '';
+        document.getElementById('p-img').value = '';
+        document.getElementById('p-price').value = '';
+        document.getElementById('p-old-price').value = '';
+        document.getElementById('p-desc').value = '';
+        document.getElementById('preview-img').style.display = 'none';
+        document.getElementById('main-btn').innerText = "🚀 حفظ المنتج في المتجر";
+        document.getElementById('cancel-btn').style.display = 'none';
+        document.getElementById('upload-status').innerText = "بانتظار اختيار ملف...";
+    }
+
+    loadProducts();
+</script>
 </body>
 </html>
